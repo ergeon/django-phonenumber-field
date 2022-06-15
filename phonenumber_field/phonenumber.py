@@ -3,6 +3,7 @@ from functools import total_ordering
 import phonenumbers
 from django.conf import settings
 from django.core import validators
+from phonenumbers.phonenumberutil import region_code_for_number
 
 
 @total_ordering
@@ -20,6 +21,8 @@ class PhoneNumber(phonenumbers.PhoneNumber):
         "RFC3966": phonenumbers.PhoneNumberFormat.RFC3966,
     }
 
+    default_format = "E164"
+
     @classmethod
     def from_string(cls, phone_number, region=None):
         phone_number_obj = cls()
@@ -35,7 +38,15 @@ class PhoneNumber(phonenumbers.PhoneNumber):
 
     def __str__(self):
         if self.is_valid():
-            format_string = getattr(settings, "PHONENUMBER_DEFAULT_FORMAT", "E164")
+            format_string = getattr(
+                settings, "PHONENUMBER_DEFAULT_FORMAT", self.default_format
+            )
+            region = getattr(settings, "PHONENUMBER_DEFAULT_REGION", None)
+            number_region = region_code_for_number(self)
+            if region and region != number_region and self.is_valid():
+                format_string = getattr(
+                    settings, "PHONENUMBER_GLOBAL_FORMAT", self.default_format
+                )
             fmt = self.format_map[format_string]
             return self.format_as(fmt)
         else:
@@ -47,6 +58,7 @@ class PhoneNumber(phonenumbers.PhoneNumber):
                 "Invalid{}(raw_input={})".format(type(self).__name__, self.raw_input)
             )
         return super().__repr__()
+
 
     def is_valid(self):
         """
