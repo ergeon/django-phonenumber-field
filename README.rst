@@ -122,3 +122,14 @@ available Python interpreters and generate a combined coverage report::
 run a specific combination::
 
     tox -e py36-djmain,py39-djmain
+
+
+
+Deployment
+===============
+
+If you want to upgrade the version and still keep our fork, you must
+
+* merge new version from the official repository to the `master` branch here.
+* update phonenumber_field/__init__.py version value
+* call `make deploy`
