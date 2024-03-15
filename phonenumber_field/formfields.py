@@ -47,8 +47,8 @@ class PhoneNumberField(CharField):
                 phone_region_codes = phonenumbers.data._COUNTRY_CODE_TO_REGION_CODE[
                     phone_number.country_code
                 ]
-            except KeyError:
-                pass
+            except KeyError as error:
+                print(error)
             else:
                 if self.region in phone_region_codes:
                     value = phone_number.as_national
